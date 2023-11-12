@@ -81,13 +81,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // 检查权限
-
         CameraUtils.init(this);
         initCamera();
         initViews();
 
     }
-
 
 
     private void initViews() {
@@ -241,32 +239,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void writeImageToFile() {
-        String filePath = Environment.getExternalStorageState()+"/DCIM/Camera/001.jpg";
+        String fileName = System.currentTimeMillis() + ".jpg";
+        String filePath = Environment.getExternalStorageDirectory() + File.separator + "DCIM" +
+                File.separator + "Camera" + File.separator + fileName;
+
         Image image = photoReader.acquireNextImage();
-        if(image == null){
+        if (image == null) {
             return;
         }
+
         ByteBuffer byteBuffer = image.getPlanes()[0].getBuffer();
         byte[] data = new byte[byteBuffer.remaining()];
         byteBuffer.get(data);
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(new File(filePath));
+
+        File file = new File(filePath);
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(data);
+            Toast.makeText(this,"拍摄成功",Toast.LENGTH_SHORT).show();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }catch (IOException e){
-            e.printStackTrace();
-        }finally {
-            try {
-                fos.close();
-                fos = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }finally {
-                image.close();
-                image = null;
-            }
+            Log.e(TAG, "File not found for writing image data", e);
+        } catch (IOException e) {
+            Log.e(TAG, "Error accessing file", e);
+        } finally {
+            image.close();
         }
     }
 
@@ -366,6 +361,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onImageAvailable(ImageReader reader) {
             writeImageToFile();
+
         }
     };
 
