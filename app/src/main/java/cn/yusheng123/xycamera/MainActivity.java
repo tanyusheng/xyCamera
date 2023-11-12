@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
             captureSession.stopRepeating();
             captureSession.capture(photoRequest,sessionCaptureCallback,null);
+            shutterSound();
 
 
         } catch (CameraAccessException e) {
@@ -256,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(data);
             Toast.makeText(this,"拍摄成功",Toast.LENGTH_SHORT).show();
+
         } catch (FileNotFoundException e) {
             Log.e(TAG, "File not found for writing image data", e);
         } catch (IOException e) {
@@ -263,6 +266,18 @@ public class MainActivity extends AppCompatActivity {
         } finally {
             image.close();
         }
+    }
+
+    //播放快门声
+    private void shutterSound(){
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.shutter);
+        mediaPlayer.start();
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.release();
+            }
+        });
     }
 
     /********* 监听器回调 *******/
