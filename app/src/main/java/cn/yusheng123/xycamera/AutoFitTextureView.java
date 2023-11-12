@@ -1,4 +1,4 @@
-package cn.yusheng123.xycamera.views;
+package cn.yusheng123.xycamera;
 
 import android.content.Context;
 import android.util.AttributeSet;

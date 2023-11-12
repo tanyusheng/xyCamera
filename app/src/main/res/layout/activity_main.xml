@@ -2,10 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-<!--    tools:context="com.demo.demos.fragments.PhotoFragment">-->
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
-    <cn.yusheng123.xycamera.views.AutoFitTextureView
+    <cn.yusheng123.xycamera.AutoFitTextureView
         android:id="@+id/preview_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -17,6 +17,6 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
-        android:text="拍照"/>
+        android:text="@string/capture"/>
 
 </RelativeLayout>
