@@ -7,7 +7,6 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -24,7 +23,6 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -44,8 +42,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+public class Camera extends AppCompatActivity {
+    private static final String TAG = "Camera";
 
     private static final SparseIntArray PHOTO_ORI = new SparseIntArray();
 
@@ -58,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     int cameraOri;
     int displayRotation;
-    private CameraManager cameraManager;
+    private CameraManager mCameraManager;
     private String cameraId;
     private List<Size> outputSizes;
     private Size photoSize;
@@ -80,16 +78,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        // 检查权限
+        // 初始化CameraUnit对象
         CameraUtils.init(this);
         initCamera();
         initViews();
-
     }
 
-
     private void initViews() {
+        setContentView(R.layout.activity_main);
         btnPhoto = findViewById(R.id.btn_photo);
         btnPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,24 +103,21 @@ public class MainActivity extends AppCompatActivity {
             photoRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION,cameraOrientation);
             photoRequestBuilder.addTarget(photoSurface);
             photoRequest = photoRequestBuilder.build();
-
             captureSession.stopRepeating();
             captureSession.capture(photoRequest,sessionCaptureCallback,null);
             shutterSound();
-
-
         } catch (CameraAccessException e) {
-
             Log.e(TAG, "takePhoto: 相机访问异常",e);
         }
     }
 
     private void initCamera(){
-        cameraManager = CameraUtils.getInstance().getCameraManager();
+        mCameraManager = CameraUtils.getInstance().getCameraManager();
         cameraId = CameraUtils.getInstance().getBackCameraId();
         outputSizes = CameraUtils.getInstance().getCameraOutputSizes(cameraId, SurfaceTexture.class);
         photoSize = outputSizes.get(0);
     }
+
 
     @SuppressLint("MissingPermission")
     private void openCamera(){
@@ -136,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 previewView.setAspectRation(photoSize.getWidth(),photoSize.getHeight());
             }
             configureTransform(previewView.getWidth(),previewView.getHeight());
-            cameraManager.openCamera(cameraId,cameraStateCallback,null);
+            mCameraManager.openCamera(cameraId,cameraStateCallback,null);
         } catch (CameraAccessException e) {
             Log.e(TAG, "openCamera: 相机访问异常",e);
         }
@@ -182,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
                 previewView.setSurfaceTextureListener(surfaceTextureListener);
             }
         }else {
-
             requestPermission();
         }
     }
@@ -192,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
         releaseCamera();
         super.onPause();
     }
-
 
     private boolean checkPermission(){
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
@@ -226,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showMessageOkCancel(String message, DialogInterface.OnClickListener okListener){
-        new AlertDialog.Builder(MainActivity.this)
+        new AlertDialog.Builder(Camera.this)
                 .setMessage(message)
                 .setPositiveButton("ok",okListener)
                 .setNegativeButton("Cancel",null)
@@ -270,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
 
     //播放快门声
     private void shutterSound(){
-        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.shutter);
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.xycamera_shutter);
         mediaPlayer.start();
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -280,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /********* 监听器回调 *******/
+    /********* 监听器&回调 *******/
     TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height) {

@@ -12,7 +12,6 @@ import android.util.Log;
 import android.util.Size;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -23,7 +22,7 @@ public class CameraUtils {
 
     private static Context appContext;
 
-    private static CameraManager cameraManager;
+    private static CameraManager mCameraManager;
 
     //定义一个私有的构造函数，阻止了从类外部创建新的CameraUtils实例
     private CameraUtils(){
@@ -34,7 +33,7 @@ public class CameraUtils {
         if(appContext == null){
             // 由于该方法是静态的，将上下文生命周期与应用程序绑定，防止内存泄露
             appContext = context.getApplicationContext();
-            cameraManager = (CameraManager) appContext.getSystemService(Context.CAMERA_SERVICE);
+            mCameraManager = (CameraManager) appContext.getSystemService(Context.CAMERA_SERVICE);
         }
     }
     
@@ -44,7 +43,7 @@ public class CameraUtils {
     }
     
     public CameraManager getCameraManager(){
-        return cameraManager;
+        return mCameraManager;
     }
     
     public String getFrontCameraId(){
@@ -63,16 +62,18 @@ public class CameraUtils {
      */
     public String getCameraId(boolean useFront){
         try {
-            for (String cameraId:cameraManager.getCameraIdList()) {
-                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+            for (String cameraId: mCameraManager.getCameraIdList()) {
+                CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(cameraId);
                 //获取当前CameraId对应相机的朝向
                 int cameraFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
                 if(useFront){
                     if(cameraFacing == CameraCharacteristics.LENS_FACING_FRONT){
+                        Log.d(TAG, "前置：getCameraId: "+cameraId+",cameraFacing:"+cameraFacing);
                         return cameraId;
                     }
                 }else {
                     if(cameraFacing == CameraCharacteristics.LENS_FACING_BACK){
+                        Log.d(TAG, "后置：getCameraId: "+cameraId+",cameraFacing:"+cameraFacing);
                         return cameraId;
                     }
                 }
@@ -91,7 +92,7 @@ public class CameraUtils {
      */
     public List<Size> getCameraOutputSizes(String cameraId, Class clz){
         try {
-            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+            CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap configs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             List<Size> sizes = Arrays.asList(configs.getOutputSizes(clz));
             Collections.sort(sizes, new Comparator<Size>() {
@@ -110,7 +111,7 @@ public class CameraUtils {
 
     public List<Size> getCameraOutputSizes(String cameraId,int format){
         try {
-            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+            CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap configs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             return Arrays.asList(configs.getOutputSizes(format));
         } catch (CameraAccessException e) {
