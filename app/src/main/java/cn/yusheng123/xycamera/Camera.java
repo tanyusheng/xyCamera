@@ -105,7 +105,9 @@ public class Camera extends AppCompatActivity {
             photoRequest = photoRequestBuilder.build();
             captureSession.stopRepeating();
             captureSession.capture(photoRequest,sessionCaptureCallback,null);
-            shutterSound();
+            // 启动一个新线程来播放声音
+            new Thread(this::shutterSound).start();
+
         } catch (CameraAccessException e) {
             Log.e(TAG, "takePhoto: 相机访问异常",e);
         }
@@ -248,7 +250,7 @@ public class Camera extends AppCompatActivity {
         File file = new File(filePath);
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(data);
-            Toast.makeText(this,"拍摄成功",Toast.LENGTH_SHORT).show();
+            Log.i(TAG,"图片写入成功");
 
         } catch (FileNotFoundException e) {
             Log.e(TAG, "File not found for writing image data", e);
